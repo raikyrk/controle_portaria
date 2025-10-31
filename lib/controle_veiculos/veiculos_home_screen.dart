@@ -1,7 +1,9 @@
+// veiculos_home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'date_time.dart';
 import 'entrada_form.dart';
+import 'saida_form.dart'; // ADICIONADO
 
 class VeiculosHomeScreen extends StatefulWidget {
   const VeiculosHomeScreen({super.key});
@@ -118,7 +120,7 @@ class _VeiculosHomeScreenState extends State<VeiculosHomeScreen>
                         ],
                       ),
                     ),
-                    const SizedBox(width: 56), // Espaço simétrico ao botão
+                    const SizedBox(width: 56),
                   ],
                 ),
 
@@ -154,6 +156,8 @@ class _VeiculosHomeScreenState extends State<VeiculosHomeScreen>
                         label: 'ENTRADA',
                         activeGradient: const LinearGradient(
                           colors: [Color(0xFFFF6A00), Color(0xFFFF8B3D)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
                         inactiveColor: const Color(0xFFF9FAFB),
                       ),
@@ -163,6 +167,8 @@ class _VeiculosHomeScreenState extends State<VeiculosHomeScreen>
                         label: 'SAÍDA',
                         activeGradient: const LinearGradient(
                           colors: [Color(0xFFE11D48), Color(0xFFDC2626)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
                         inactiveColor: const Color(0xFFF9FAFB),
                       ),
@@ -191,7 +197,7 @@ class _VeiculosHomeScreenState extends State<VeiculosHomeScreen>
                         controller: _tabController,
                         children: const [
                           EntradaForm(),
-                          SaidaForm(), // Certifique-se de que existe!
+                          SaidaForm(),
                         ],
                       ),
                     ),
@@ -203,14 +209,14 @@ class _VeiculosHomeScreenState extends State<VeiculosHomeScreen>
                   padding: const EdgeInsets.only(top: 20.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
+                    children: const [
+                      Icon(
                         FeatherIcons.shield,
                         color: Color(0xFF6B7280),
                         size: 18,
                       ),
-                      const SizedBox(width: 10),
-                      const Text(
+                      SizedBox(width: 10),
+                      Text(
                         'Sistema Seguro de Controle de Veículos v1.0',
                         style: TextStyle(
                           fontSize: 14,

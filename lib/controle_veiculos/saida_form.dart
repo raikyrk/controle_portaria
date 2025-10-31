@@ -1,40 +1,22 @@
-// entrada_form.dart
+// saida_form.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'services_api.dart';
 
-class AppPreferences {
-  static const String _keyConferenteId = 'conferente_id';
-
-  static Future<void> saveConferenteId(String id) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_keyConferenteId, id);
-  }
-
-  static Future<String?> getConferenteId() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_keyConferenteId);
-  }
-}
-
-class EntradaForm extends StatefulWidget {
-  const EntradaForm({super.key});
+class SaidaForm extends StatefulWidget {
+  const SaidaForm({super.key});
 
   @override
-  _EntradaFormState createState() => _EntradaFormState();
+  _SaidaFormState createState() => _SaidaFormState();
 }
 
-class _EntradaFormState extends State<EntradaForm>
+class _SaidaFormState extends State<SaidaForm>
     with SingleTickerProviderStateMixin {
-  List<Map<String, dynamic>> conferentes = [];
-  String? selectedConferente;
-  final TextEditingController placaController = TextEditingController();
-  final TextEditingController modeloController = TextEditingController();
-  final TextEditingController motoristaController = TextEditingController();
-  final TextEditingController idController = TextEditingController();
-  bool showSuccess = false;
+  List<Map<String, dynamic>> veiculosDentro = [];
+  Map<String, dynamic>? selectedVehicle;
   bool isLoading = false;
+  bool isRegistering = false;
+  bool showSuccess = false;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
@@ -49,51 +31,21 @@ class _EntradaFormState extends State<EntradaForm>
       parent: _animationController,
       curve: Curves.easeInOut,
     );
-    _fetchConferentesAndLoadSaved();
+    _loadVeiculosDentro();
     _animationController.forward();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _fetchConferentesAndLoadSaved();
-  }
-
-  Future<void> _fetchConferentesAndLoadSaved() async {
+  Future<void> _loadVeiculosDentro() async {
+    setState(() => isLoading = true);
     try {
-      final data = await ApiService.fetchConferentes();
-      final List<Map<String, String>> loadedConferentes = data.map((c) {
-        return {
-          'id': c['id'].toString(),
-          'nome': c['nome'].toString().trim(),
-        };
-      }).toList();
-
+      final data = await ApiService.fetchVeiculosDentroHoje();
       setState(() {
-        conferentes = loadedConferentes.cast<Map<String, dynamic>>();
+        veiculosDentro = data;
+        isLoading = false;
       });
-
-      final savedId = await AppPreferences.getConferenteId();
-
-      if (savedId != null && loadedConferentes.isNotEmpty) {
-        final savedConferente = loadedConferentes.firstWhere(
-          (c) => c['id'] == savedId,
-          orElse: () => loadedConferentes[0],
-        );
-
-        setState(() {
-          selectedConferente = savedConferente['nome'];
-        });
-        return;
-      }
-
-      if (loadedConferentes.isNotEmpty) {
-        setState(() {
-          selectedConferente = loadedConferentes[0]['nome'];
-        });
-      }
     } catch (e) {
-      _showErrorSnackBar('Erro ao carregar conferentes: $e');
+      setState(() => isLoading = false);
+      _showErrorSnackBar('Erro ao carregar veículos: $e');
     }
   }
 
@@ -121,55 +73,32 @@ class _EntradaFormState extends State<EntradaForm>
     );
   }
 
-  Future<void> _registerEntrada() async {
-    if (selectedConferente == null ||
-        placaController.text.isEmpty ||
-        modeloController.text.isEmpty ||
-        motoristaController.text.isEmpty ||
-        idController.text.isEmpty) {
-      _showErrorSnackBar('Preencha todos os campos obrigatórios');
+  Future<void> _registerSaida() async {
+    if (selectedVehicle == null) {
+      _showErrorSnackBar('Selecione um veículo');
       return;
     }
 
-    setState(() => isLoading = true);
+    setState(() => isRegistering = true);
 
     try {
-      final conferente = conferentes.cast<Map<String, String>>().firstWhere(
-        (c) => c['nome'] == selectedConferente,
-        orElse: () => {'id': '', 'nome': ''},
-      );
-
-      if (conferente['id'] == null || conferente['id']!.isEmpty) {
-        _showErrorSnackBar('Conferente inválido. Recarregue a lista.');
-        setState(() => isLoading = false);
-        return;
-      }
-
-      final success = await ApiService.registerEntrada(
-        conferenteId: conferente['id']!,
-        placa: placaController.text.trim().toUpperCase(),
-        modelo: modeloController.text.trim(),
-        motorista: motoristaController.text.trim(),
-        idMotorista: idController.text.trim(),
-      );
-
-      if (!success) throw Exception('Falha no servidor');
+      final success = await ApiService.registerSaida(selectedVehicle!['placa']);
+      if (!success) throw Exception('Falha ao registrar saída');
 
       setState(() {
         showSuccess = true;
-        isLoading = false;
-        placaController.clear();
-        modeloController.clear();
-        motoristaController.clear();
-        idController.clear();
+        isRegistering = false;
+        selectedVehicle = null;
       });
+
+      _loadVeiculosDentro();
 
       Future.delayed(const Duration(seconds: 3), () {
         if (mounted) setState(() => showSuccess = false);
       });
     } catch (e) {
-      setState(() => isLoading = false);
-      _showErrorSnackBar('Erro ao registrar: $e');
+      setState(() => isRegistering = false);
+      _showErrorSnackBar('Erro ao registrar saída: $e');
     }
   }
 
@@ -181,12 +110,12 @@ class _EntradaFormState extends State<EntradaForm>
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFFEFF6FF), Color(0xFFDBEAFE)],
+          colors: [Color(0xFFFFF7ED), Color(0xFFFFEDD5)],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF3B82F6).withOpacity(0.15),
+            color: const Color(0xFFFF6A00).withOpacity(0.15),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -197,18 +126,18 @@ class _EntradaFormState extends State<EntradaForm>
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF3B82F6),
+              color: const Color(0xFFFF6A00),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: const Icon(FeatherIcons.info, color: Colors.white, size: 32),
+            child: const Icon(FeatherIcons.logOut, color: Colors.white, size: 32),
           ),
           const SizedBox(width: 20),
           const Expanded(
             child: Text(
-              'Preencha todos os campos para registrar a entrada do veículo',
+              'Selecione o veículo que está saindo',
               style: TextStyle(
                 fontSize: 18,
-                color: Color(0xFF1E40AF),
+                color: Color(0xFF7C2D12),
                 fontWeight: FontWeight.bold,
                 height: 1.5,
               ),
@@ -219,7 +148,7 @@ class _EntradaFormState extends State<EntradaForm>
     );
   }
 
-  Widget _buildCustomDropdown() {
+  Widget _buildDropdown() {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -232,16 +161,20 @@ class _EntradaFormState extends State<EntradaForm>
           ),
         ],
       ),
-      child: DropdownButtonFormField<String>(
-        value: selectedConferente,
+      child: DropdownButtonFormField<Map<String, dynamic>>(
+        value: selectedVehicle,
+        hint: const Text(
+          'Selecione a placa',
+          style: TextStyle(fontSize: 18, color: Color(0xFF6B7280)),
+        ),
         decoration: InputDecoration(
-          labelText: 'Conferente (Porteiro)',
+          labelText: 'VEÍCULO NA PORTARIA',
           labelStyle: const TextStyle(
             fontWeight: FontWeight.bold,
             color: Color(0xFF374151),
             fontSize: 18,
           ),
-          prefixIcon: const Icon(FeatherIcons.user, color: Color(0xFFFF6A00), size: 32),
+          prefixIcon: const Icon(FeatherIcons.truck, color: Color(0xFFFF6A00), size: 32),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(20),
             borderSide: BorderSide.none,
@@ -258,123 +191,214 @@ class _EntradaFormState extends State<EntradaForm>
           fillColor: Colors.white,
           contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
         ),
-        items: conferentes.map((conferente) {
-          return DropdownMenuItem<String>(
-            value: conferente['nome'] as String,
-            child: Text(
-              conferente['nome'] as String,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        items: veiculosDentro.map((v) {
+          return DropdownMenuItem<Map<String, dynamic>>(
+            value: v,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  v['placa'],
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  '${v['motorista']} • ${v['modelo']} • ${v['horario_chegada']}',
+                  style: const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+                ),
+              ],
             ),
           );
         }).toList(),
-        onChanged: (value) async {
-          if (value == null) return;
-
+        onChanged: isLoading ? null : (value) {
           setState(() {
-            selectedConferente = value;
+            selectedVehicle = value;
           });
-
-          final conferente = conferentes.cast<Map<String, String>>().firstWhere(
-            (c) => c['nome'] == value,
-            orElse: () => conferentes[0] as Map<String, String>,
-          );
-
-          await AppPreferences.saveConferenteId(conferente['id']!);
         },
         dropdownColor: Colors.white,
-        style: const TextStyle(fontSize: 18, color: Colors.black),
+        isExpanded: true,
       ),
     );
   }
 
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    int? maxLength,
-    bool centerText = false,
-    TextCapitalization textCapitalization = TextCapitalization.none,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: TextFormField(
-        controller: controller,
-        textCapitalization: textCapitalization,
-        textAlign: centerText ? TextAlign.center : TextAlign.start,
-        maxLength: maxLength,
-        style: const TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Color(0xFF0B0B0B),
-          letterSpacing: 1.2,
-        ),
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF374151),
-            fontSize: 18,
-          ),
-          prefixIcon: Icon(icon, color: const Color(0xFFFF6A00), size: 32),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 3),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: const BorderSide(color: Color(0xFFFF6A00), width: 3),
-          ),
-          filled: true,
-          fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-          counterText: '',
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSubmitButton() {
+  Widget _buildRefreshButton() {
     return Container(
       height: 64,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFFFF6A00), Color(0xFFFF8B3D)],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [Color(0xFF3B82F6), Color(0xFF2563EB)],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFFF6A00).withOpacity(0.5),
+            color: const Color(0xFF3B82F6).withOpacity(0.5),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),
         ],
       ),
       child: ElevatedButton(
-        onPressed: isLoading ? null : _registerEntrada,
+        onPressed: isLoading ? null : _loadVeiculosDentro,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         ),
         child: isLoading
+            ? const SizedBox(
+                width: 32,
+                height: 32,
+                child: CircularProgressIndicator(
+                  strokeWidth: 4,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(FeatherIcons.refreshCw, color: Colors.white, size: 32),
+                  SizedBox(width: 16),
+                  Text(
+                    'ATUALIZAR LISTA',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+
+  Widget _buildVehicleInfoCard() {
+    if (selectedVehicle == null) return const SizedBox.shrink();
+
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.elasticOut,
+      builder: (context, value, child) {
+        return Transform.scale(
+          scale: value,
+          child: Container(
+            margin: const EdgeInsets.symmetric(vertical: 24),
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFFFFFBEB), Color(0xFFFEF3C7)],
+              ),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFFFBBF24), width: 3),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFFFBBF24).withOpacity(0.3),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFBBF24),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: const Icon(FeatherIcons.info, color: Colors.white, size: 28),
+                    ),
+                    const SizedBox(width: 16),
+                    const Text(
+                      'VEÍCULO SELECIONADO',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF0B0B0B),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                _buildInfoRow(FeatherIcons.user, 'MOTORISTA', selectedVehicle!['motorista']),
+                const SizedBox(height: 16),
+                _buildInfoRow(FeatherIcons.tag, 'MODELO', selectedVehicle!['modelo']),
+                const SizedBox(height: 16),
+                _buildInfoRow(
+                  FeatherIcons.clock,
+                  'ENTRADA',
+                  selectedVehicle!['horario_chegada'],
+                  isHighlight: true,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String value, {bool isHighlight = false}) {
+    return Row(
+      children: [
+        Icon(icon, size: 28, color: isHighlight ? const Color(0xFF16A34A) : const Color(0xFF78716C)),
+        const SizedBox(width: 14),
+        Text(
+          '$label: ',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: isHighlight ? const Color(0xFF16A34A) : const Color(0xFF78716C),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: isHighlight ? FontWeight.bold : FontWeight.bold,
+              color: isHighlight ? const Color(0xFF16A34A) : const Color(0xFF0B0B0B),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRegisterButton() {
+    return Container(
+      height: 64,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF16A34A), Color(0xFF15803D)],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF16A34A).withOpacity(0.5),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: ElevatedButton(
+        onPressed: isRegistering ? null : _registerSaida,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        ),
+        child: isRegistering
             ? const SizedBox(
                 width: 32,
                 height: 32,
@@ -389,7 +413,7 @@ class _EntradaFormState extends State<EntradaForm>
                   Icon(FeatherIcons.checkCircle, color: Colors.white, size: 32),
                   SizedBox(width: 16),
                   Text(
-                    'REGISTRAR ENTRADA',
+                    'REGISTRAR SAÍDA',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -444,10 +468,10 @@ class _EntradaFormState extends State<EntradaForm>
                   ),
                 ),
                 const SizedBox(width: 20),
-                Expanded(
+                const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text(
                         'SUCESSO!',
                         style: TextStyle(
@@ -458,7 +482,7 @@ class _EntradaFormState extends State<EntradaForm>
                       ),
                       SizedBox(height: 6),
                       Text(
-                        'Entrada registrada com sucesso',
+                        'Saída registrada com sucesso',
                         style: TextStyle(
                           fontSize: 18,
                           color: Color(0xFF15803D),
@@ -486,44 +510,12 @@ class _EntradaFormState extends State<EntradaForm>
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildInfoCard(),
-            _buildCustomDropdown(),
+            _buildDropdown(),
             const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildTextField(
-                    controller: placaController,
-                    label: 'PLACA',
-                    icon: FeatherIcons.truck,
-                    maxLength: 8,
-                    centerText: true,
-                    textCapitalization: TextCapitalization.characters,
-                  ),
-                ),
-                const SizedBox(width: 20),
-                Expanded(
-                  child: _buildTextField(
-                    controller: modeloController,
-                    label: 'MODELO',
-                    icon: FeatherIcons.tag,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            _buildTextField(
-              controller: motoristaController,
-              label: 'MOTORISTA',
-              icon: FeatherIcons.user,
-            ),
-            const SizedBox(height: 24),
-            _buildTextField(
-              controller: idController,
-              label: 'IDENTIDADE (ID)',
-              icon: FeatherIcons.creditCard,
-            ),
-            const SizedBox(height: 32),
-            _buildSubmitButton(),
+            _buildRefreshButton(),
+            if (selectedVehicle != null) _buildVehicleInfoCard(),
+            if (selectedVehicle != null) const SizedBox(height: 24),
+            if (selectedVehicle != null) _buildRegisterButton(),
             if (showSuccess) _buildSuccessCard(),
           ],
         ),
@@ -534,10 +526,6 @@ class _EntradaFormState extends State<EntradaForm>
   @override
   void dispose() {
     _animationController.dispose();
-    placaController.dispose();
-    modeloController.dispose();
-    motoristaController.dispose();
-    idController.dispose();
     super.dispose();
   }
 }

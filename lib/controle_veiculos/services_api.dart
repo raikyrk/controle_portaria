@@ -34,7 +34,7 @@ class ApiService {
     required String motorista,
     required String idMotorista,
   }) async {
-    final url = '$apiUrl/veiculosreg/register_entrada.php'; // SEM BARRA DUPLA
+    final url = '$apiUrl/veiculosreg/register_entrada.php';
     final registro = {
       'conferente_id': conferenteId,
       'placa': placa.trim().toUpperCase(),
@@ -79,9 +79,9 @@ class ApiService {
     }
   }
 
-  // === BUSCAR VEÍCULO ===
+  // === BUSCAR 1 VEÍCULO POR PLACA (ANTIGO search_vehicle) ===
   static Future<Map<String, dynamic>?> searchVehicle(String placa) async {
-    final url = '$apiUrl/veiculosreg/search_vehicle.php?placa=${placa.trim().toUpperCase()}';
+    final url = '$apiUrl/veiculosreg/veiculos_status.php?placa=${placa.trim().toUpperCase()}';
     print('GET: $url');
 
     try {
@@ -90,12 +90,36 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return data['status'] == 'dentro' ? data : null;
+        if (data['success'] == true && data['status'] == 'dentro') {
+          return data['veiculo'];
+        }
       }
       return null;
     } catch (e) {
       print('Erro searchVehicle: $e');
       return null;
+    }
+  }
+
+  // === LISTAR TODOS OS VEÍCULOS DENTRO HOJE (DROPDOWN) ===
+  static Future<List<Map<String, dynamic>>> fetchVeiculosDentroHoje() async {
+    final url = '$apiUrl/veiculosreg/veiculos_status.php';
+    print('GET: $url');
+
+    try {
+      final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
+      print('Status: ${response.statusCode} | Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success'] == true) {
+          return List<Map<String, dynamic>>.from(data['veiculos'] ?? []);
+        }
+      }
+      return [];
+    } catch (e) {
+      print('Erro fetchVeiculosDentroHoje: $e');
+      return [];
     }
   }
 
