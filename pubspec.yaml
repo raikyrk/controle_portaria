@@ -1,0 +1,45 @@
+name: controle_portaria
+description: A Flutter app for vehicle and motoboy tracking.
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.1.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.2
+  provider: ^6.1.2
+  font_awesome_flutter: ^10.7.0
+  google_fonts: ^6.2.1
+  intl: ^0.20.2
+  url_launcher: ^6.3.0
+  shared_preferences: ^2.2.3
+  flutter_localizations:
+    sdk: flutter
+  connectivity_plus: ^6.0.0
+  cupertino_icons: ^1.0.8
+  flutter_feather_icons: ^2.0.0
+  flutter_dotenv: ^5.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_launcher_icons: ^0.13.1
+
+dependency_overrides:
+  characters: ^1.4.1
+  material_color_utilities: ^0.13.0
+  meta: ^1.17.0
+  vector_math: ^2.2.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/go-icon.png
+    - .env
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/go-icon.png"
