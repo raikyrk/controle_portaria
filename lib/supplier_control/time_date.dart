@@ -1,50 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
-import 'dart:async';
 
 class DateTimeCard extends StatefulWidget {
   const DateTimeCard({super.key});
 
   @override
-  _DateTimeCardState createState() => _DateTimeCardState();
+  State<DateTimeCard> createState() => _DateTimeCardState();
 }
 
 class _DateTimeCardState extends State<DateTimeCard> {
   String currentDate = '';
   String currentTime = '';
-  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _updateDateTime(); // Atualiza imediatamente
-    _startTimer();     // Inicia o timer
+    _updateDateTime();
   }
 
   void _updateDateTime() {
-    final now = DateTime.now();
-    final date = DateFormat('dd/MM/yyyy').format(now);
-    final time = DateFormat('HH:mm').format(now);
-
-    if (mounted) {
-      setState(() {
-        currentDate = date;
-        currentTime = time;
-      });
-    }
-  }
-
-  void _startTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      _updateDateTime();
+    setState(() {
+      currentDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
+      currentTime = DateFormat('HH:mm').format(DateTime.now());
     });
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel(); // Cancela o timer ao sair
-    super.dispose();
+    Future.delayed(const Duration(seconds: 1), _updateDateTime);
   }
 
   @override
@@ -95,7 +75,7 @@ class _DateTimeCardState extends State<DateTimeCard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'DATA ATUAL',
+                    'Data Atual',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -138,7 +118,7 @@ class _DateTimeCardState extends State<DateTimeCard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'HORÁRIO',
+                    'Hora',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,

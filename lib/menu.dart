@@ -1,3 +1,4 @@
+// lib/menu.dart
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -143,6 +144,19 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                           });
                         },
                       ),
+                      const SizedBox(height: 12),
+                      _buildMenuItem(
+                        icon: FontAwesomeIcons.truckLoading,
+                        title: 'Controle de Fornecedores',
+                        subtitle: 'Entrada e saída de fornecedores',
+                        index: 3,
+                        onTap: () {
+                          setState(() => _selectedIndex = 3);
+                          Future.delayed(const Duration(milliseconds: 200), () {
+                            Navigator.pushReplacementNamed(context, '/controle_fornecedores');
+                          });
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -172,7 +186,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                           BoxShadow(
                             color: Colors.black.withOpacity(0.05),
                             blurRadius: 10,
-                            offset: const Offset(0, 2),
+                            offset: const Offset(0, 2), // CORRIGIDO: control2 → 2
                           ),
                         ],
                       ),
@@ -259,7 +273,6 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                             ),
                             const SizedBox(height: 40),
 
-                            // Visão Geral
                             Text(
                               'Visão Geral',
                               style: GoogleFonts.poppins(
@@ -270,14 +283,13 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                             ),
                             const SizedBox(height: 20),
 
-                            // Linha 1: Rotas + Motoboys
                             Row(
                               children: [
                                 Expanded(
                                   child: _buildStatCard(
                                     icon: FontAwesomeIcons.truck,
-                                    title: 'Rotas',
-                                    value: 'Controle de Rotas',
+                                    title: 'Portaria',
+                                    value: 'Entrada e Saída',
                                     color: const Color(0xFFF97316),
                                     onTap: () => Navigator.pushReplacementNamed(context, '/portaria'),
                                   ),
@@ -287,7 +299,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                                   child: _buildStatCard(
                                     icon: FontAwesomeIcons.motorcycle,
                                     title: 'Motoboys',
-                                    value: 'Controle Motoboys',
+                                    value: 'Controle de Entregas',
                                     color: const Color(0xFF1A1A1A),
                                     onTap: () => Navigator.pushReplacementNamed(context, '/mototrack'),
                                   ),
@@ -297,20 +309,27 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
 
                             const SizedBox(height: 20),
 
-                            // Linha 2: Veículos (sozinho, centralizado)
                             Row(
                               children: [
                                 Expanded(
                                   child: _buildStatCard(
                                     icon: FontAwesomeIcons.car,
                                     title: 'Veículos',
-                                    value: 'Controle de Veículos',
+                                    value: 'Controle Interno',
                                     color: const Color(0xFF10B981),
                                     onTap: () => Navigator.pushReplacementNamed(context, '/controle_veiculos'),
                                   ),
                                 ),
                                 const SizedBox(width: 20),
-                                const Expanded(child: SizedBox()), // Espaço vazio para alinhar
+                                Expanded(
+                                  child: _buildStatCard(
+                                    icon: FontAwesomeIcons.truckLoading,
+                                    title: 'Fornecedores',
+                                    value: 'Entrada e Saída',
+                                    color: const Color(0xFF8B5CF6),
+                                    onTap: () => Navigator.pushReplacementNamed(context, '/controle_fornecedores'),
+                                  ),
+                                ),
                               ],
                             ),
                           ],

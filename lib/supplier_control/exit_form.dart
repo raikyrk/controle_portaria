@@ -1,19 +1,18 @@
-// saida_form.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
-import 'services_api.dart';
+import 'api.dart';
 
-class SaidaForm extends StatefulWidget {
-  const SaidaForm({super.key});
+class ExitForm extends StatefulWidget {
+  const ExitForm({super.key});
 
   @override
-  _SaidaFormState createState() => _SaidaFormState();
+  State<ExitForm> createState() => _ExitFormState();
 }
 
-class _SaidaFormState extends State<SaidaForm>
+class _ExitFormState extends State<ExitForm>
     with SingleTickerProviderStateMixin {
-  List<Map<String, dynamic>> veiculosDentro = [];
-  Map<String, dynamic>? selectedVehicle;
+  List<Map<String, dynamic>> suppliersInside = [];
+  Map<String, dynamic>? selectedSupplier;
   bool isLoading = false;
   bool isRegistering = false;
   bool showSuccess = false;
@@ -31,21 +30,21 @@ class _SaidaFormState extends State<SaidaForm>
       parent: _animationController,
       curve: Curves.easeInOut,
     );
-    _loadVeiculosDentro();
+    _loadSuppliersInside();
     _animationController.forward();
   }
 
-  Future<void> _loadVeiculosDentro() async {
+  Future<void> _loadSuppliersInside() async {
     setState(() => isLoading = true);
     try {
-      final data = await ApiService.fetchVeiculosDentroHoje();
+      final data = await Api.fetchSuppliersInsideToday();
       setState(() {
-        veiculosDentro = data;
+        suppliersInside = data;
         isLoading = false;
       });
     } catch (e) {
       setState(() => isLoading = false);
-      _showErrorSnackBar('Erro ao carregar veículos: $e');
+      _showErrorSnackBar('Erro ao carregar fornecedores: $e');
     }
   }
 
@@ -73,25 +72,25 @@ class _SaidaFormState extends State<SaidaForm>
     );
   }
 
-  Future<void> _registerSaida() async {
-    if (selectedVehicle == null) {
-      _showErrorSnackBar('Selecione um veículo');
+  Future<void> _registerExit() async {
+    if (selectedSupplier == null) {
+      _showErrorSnackBar('Selecione um fornecedor');
       return;
     }
 
     setState(() => isRegistering = true);
 
     try {
-      final success = await ApiService.registerSaida(selectedVehicle!['placa']);
+      final success = await Api.registerSupplierExit(selectedSupplier!['placa']);
       if (!success) throw Exception('Falha ao registrar saída');
 
       setState(() {
         showSuccess = true;
         isRegistering = false;
-        selectedVehicle = null;
+        selectedSupplier = null;
       });
 
-      _loadVeiculosDentro();
+      _loadSuppliersInside();
 
       Future.delayed(const Duration(seconds: 4), () {
         if (mounted) setState(() => showSuccess = false);
@@ -102,7 +101,6 @@ class _SaidaFormState extends State<SaidaForm>
     }
   }
 
-  // ---------- CARD INFO ----------
   Widget _buildInfoCard() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -135,7 +133,7 @@ class _SaidaFormState extends State<SaidaForm>
           const SizedBox(width: 16),
           const Expanded(
             child: Text(
-              'Selecione o veículo que está saindo',
+              'Selecione o fornecedor que está saindo',
               style: TextStyle(
                 fontSize: 16,
                 color: Color(0xFF7C2D12),
@@ -149,7 +147,6 @@ class _SaidaFormState extends State<SaidaForm>
     );
   }
 
-  // ---------- DROPDOWN REDESENHADO ----------
   Widget _buildDropdown() {
     return Container(
       decoration: BoxDecoration(
@@ -167,7 +164,7 @@ class _SaidaFormState extends State<SaidaForm>
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<Map<String, dynamic>>(
-          value: selectedVehicle,
+          value: selectedSupplier,
           isExpanded: true,
           hint: Row(
             children: [
@@ -179,7 +176,7 @@ class _SaidaFormState extends State<SaidaForm>
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Text(
-                      'VEÍCULO NA PORTARIA',
+                      'FORNECEDOR NA PORTARIA',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -217,7 +214,7 @@ class _SaidaFormState extends State<SaidaForm>
           elevation: 8,
           itemHeight: null, // Permite altura dinâmica
           selectedItemBuilder: (context) {
-            return veiculosDentro.map((v) {
+            return suppliersInside.map((s) {
               return Row(
                 children: [
                   const Icon(FeatherIcons.truck, color: Color(0xFFFF6A00), size: 28),
@@ -228,7 +225,7 @@ class _SaidaFormState extends State<SaidaForm>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Text(
-                          'VEÍCULO NA PORTARIA',
+                          'FORNECEDOR NA PORTARIA',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
@@ -238,7 +235,7 @@ class _SaidaFormState extends State<SaidaForm>
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          v['placa'],
+                          s['placa'],
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -253,9 +250,9 @@ class _SaidaFormState extends State<SaidaForm>
               );
             }).toList();
           },
-          items: veiculosDentro.map((v) {
+          items: suppliersInside.map((s) {
             return DropdownMenuItem<Map<String, dynamic>>(
-              value: v,
+              value: s,
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
                 decoration: BoxDecoration(
@@ -279,7 +276,7 @@ class _SaidaFormState extends State<SaidaForm>
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            v['placa'],
+                            s['placa'],
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -302,7 +299,7 @@ class _SaidaFormState extends State<SaidaForm>
                               const Icon(FeatherIcons.clock, size: 14, color: Color(0xFF16A34A)),
                               const SizedBox(width: 4),
                               Text(
-                                v['horario_chegada'],
+                                s['horario_chegada'],
                                 style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
@@ -321,7 +318,7 @@ class _SaidaFormState extends State<SaidaForm>
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            v['motorista'],
+                            s['motorista'],
                             style: const TextStyle(
                               fontSize: 14,
                               color: Color(0xFF374151),
@@ -335,11 +332,11 @@ class _SaidaFormState extends State<SaidaForm>
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(FeatherIcons.tag, size: 14, color: Color(0xFF6B7280)),
+                        const Icon(FeatherIcons.package, size: 14, color: Color(0xFF6B7280)),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            v['modelo'],
+                            s['empresa'],
                             style: const TextStyle(
                               fontSize: 14,
                               color: Color(0xFF6B7280),
@@ -357,7 +354,7 @@ class _SaidaFormState extends State<SaidaForm>
           }).toList(),
           onChanged: isLoading ? null : (value) {
             setState(() {
-              selectedVehicle = value;
+              selectedSupplier = value;
             });
           },
         ),
@@ -365,9 +362,8 @@ class _SaidaFormState extends State<SaidaForm>
     );
   }
 
-  // ---------- CARD INFO DO VEÍCULO ----------
-  Widget _buildVehicleInfoCard() {
-    if (selectedVehicle == null) return const SizedBox.shrink();
+  Widget _buildSupplierInfoCard() {
+    if (selectedSupplier == null) return const SizedBox.shrink();
 
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
@@ -410,7 +406,7 @@ class _SaidaFormState extends State<SaidaForm>
                     ),
                     const SizedBox(width: 14),
                     const Text(
-                      'VEÍCULO SELECIONADO',
+                      'FORNECEDOR SELECIONADO',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -420,14 +416,14 @@ class _SaidaFormState extends State<SaidaForm>
                   ],
                 ),
                 const SizedBox(height: 16),
-                _buildInfoRow(FeatherIcons.user, 'MOTORISTA', selectedVehicle!['motorista']),
+                _buildInfoRow(FeatherIcons.user, 'MOTORISTA', selectedSupplier!['motorista']),
                 const SizedBox(height: 12),
-                _buildInfoRow(FeatherIcons.tag, 'MODELO', selectedVehicle!['modelo']),
+                _buildInfoRow(FeatherIcons.package, 'EMPRESA', selectedSupplier!['empresa']),
                 const SizedBox(height: 12),
                 _buildInfoRow(
                   FeatherIcons.clock,
                   'ENTRADA',
-                  selectedVehicle!['horario_chegada'],
+                  selectedSupplier!['horario_chegada'],
                   isHighlight: true,
                 ),
               ],
@@ -466,7 +462,6 @@ class _SaidaFormState extends State<SaidaForm>
     );
   }
 
-  // ---------- BOTÃO REGISTRAR ----------
   Widget _buildRegisterButton() {
     return Container(
       height: 58,
@@ -486,7 +481,7 @@ class _SaidaFormState extends State<SaidaForm>
         ],
       ),
       child: ElevatedButton(
-        onPressed: isRegistering ? null : _registerSaida,
+        onPressed: isRegistering ? null : _registerExit,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
@@ -521,7 +516,6 @@ class _SaidaFormState extends State<SaidaForm>
     );
   }
 
-  // ---------- CARD DE SUCESSO SUPER VISÍVEL ----------
   Widget _buildSuccessCard() {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
@@ -584,7 +578,7 @@ class _SaidaFormState extends State<SaidaForm>
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Veículo liberado com sucesso',
+                  'Fornecedor liberado com sucesso',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.white,
@@ -600,7 +594,6 @@ class _SaidaFormState extends State<SaidaForm>
     );
   }
 
-  // ---------- BUILD ----------
   @override
   Widget build(BuildContext context) {
     return FadeTransition(
@@ -613,9 +606,9 @@ class _SaidaFormState extends State<SaidaForm>
             _buildInfoCard(),
             _buildDropdown(),
             const SizedBox(height: 24),
-            if (selectedVehicle != null) _buildVehicleInfoCard(),
-            if (selectedVehicle != null) const SizedBox(height: 20),
-            if (selectedVehicle != null) _buildRegisterButton(),
+            if (selectedSupplier != null) _buildSupplierInfoCard(),
+            if (selectedSupplier != null) const SizedBox(height: 20),
+            if (selectedSupplier != null) _buildRegisterButton(),
             if (showSuccess) _buildSuccessCard(),
           ],
         ),

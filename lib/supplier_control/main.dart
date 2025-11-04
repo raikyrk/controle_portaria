@@ -1,15 +1,14 @@
-// lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:controle_portaria/menu.dart';
-import 'package:controle_portaria/portaria_app/portaria_homescreen.dart';
-import 'package:controle_portaria/mototrack_app/new_record_screen.dart';
-import 'package:controle_portaria/controle_veiculos/veiculos_home_screen.dart';
-import 'package:controle_portaria/supplier_control/screenfor_home.dart';
-import 'package:controle_portaria/portaria_app/models.dart' as models;
+import 'menu.dart';
+import 'portaria_app/portaria_homescreen.dart';
+import 'mototrack_app/new_record_screen.dart';
+import 'controle_veiculos/veiculos_home_screen.dart';
+import 'supplier_control/screenfor_home.dart';
+import 'portaria_app/models.dart' as models;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +25,7 @@ class ControlePortariaApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => AppState(),
       child: MaterialApp(
-        title: 'Gerenciamento de Veículos',
+        title: 'Gate Management',
         theme: ThemeData(
           primaryColor: const Color(0xFFF97316),
           colorScheme: ColorScheme.fromSwatch().copyWith(

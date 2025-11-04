@@ -44,14 +44,15 @@ Widget buildTextFieldContainer({
   );
 }
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+// CLASSE CORRIGIDA: PortariaHomeScreen
+class PortariaHomeScreen extends StatefulWidget {
+  const PortariaHomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<PortariaHomeScreen> createState() => _PortariaHomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
+class _PortariaHomeScreenState extends State<PortariaHomeScreen> with TickerProviderStateMixin {
   final _kmDepartureController = TextEditingController();
   final _lateralSealController = TextEditingController();
   final _rearSealController = TextEditingController();

@@ -102,12 +102,12 @@ class _EntradaFormState extends State<EntradaForm>
       SnackBar(
         content: Row(
           children: [
-            const Icon(FeatherIcons.alertCircle, color: Colors.white, size: 32),
-            const SizedBox(width: 16),
+            const Icon(FeatherIcons.alertCircle, color: Colors.white, size: 28), // Reduzido
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
                 message,
-                style: const TextStyle(fontSize: 18, color: Colors.white),
+                style: const TextStyle(fontSize: 16, color: Colors.white), // Reduzido
               ),
             ),
           ],
@@ -116,7 +116,7 @@ class _EntradaFormState extends State<EntradaForm>
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         margin: const EdgeInsets.all(20),
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
       ),
     );
   }
@@ -175,39 +175,39 @@ class _EntradaFormState extends State<EntradaForm>
 
   Widget _buildInfoCard() {
     return Container(
-      padding: const EdgeInsets.all(24),
-      margin: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [Color(0xFFEFF6FF), Color(0xFFDBEAFE)],
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF3B82F6).withOpacity(0.15),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: const Color(0xFF3B82F6),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(14),
             ),
-            child: const Icon(FeatherIcons.info, color: Colors.white, size: 32),
+            child: const Icon(FeatherIcons.info, color: Colors.white, size: 28),
           ),
-          const SizedBox(width: 20),
+          const SizedBox(width: 16),
           const Expanded(
             child: Text(
               'Preencha todos os campos para registrar a entrada do veículo',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 16, // Reduzido de 18
                 color: Color(0xFF1E40AF),
                 fontWeight: FontWeight.bold,
                 height: 1.5,
@@ -223,12 +223,12 @@ class _EntradaFormState extends State<EntradaForm>
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
@@ -239,31 +239,31 @@ class _EntradaFormState extends State<EntradaForm>
           labelStyle: const TextStyle(
             fontWeight: FontWeight.bold,
             color: Color(0xFF374151),
-            fontSize: 18,
+            fontSize: 16, // Reduzido de 18
           ),
-          prefixIcon: const Icon(FeatherIcons.user, color: Color(0xFFFF6A00), size: 32),
+          prefixIcon: const Icon(FeatherIcons.user, color: Color(0xFFFF6A00), size: 28),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(18),
             borderSide: BorderSide.none,
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 3),
+            borderRadius: BorderRadius.circular(18),
+            borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 2),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: const BorderSide(color: Color(0xFFFF6A00), width: 3),
+            borderRadius: BorderRadius.circular(18),
+            borderSide: const BorderSide(color: Color(0xFFFF6A00), width: 2),
           ),
           filled: true,
           fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         ),
         items: conferentes.map((conferente) {
           return DropdownMenuItem<String>(
             value: conferente['nome'] as String,
             child: Text(
               conferente['nome'] as String,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold), // Reduzido de 18
             ),
           );
         }).toList(),
@@ -282,7 +282,7 @@ class _EntradaFormState extends State<EntradaForm>
           await AppPreferences.saveConferenteId(conferente['id']!);
         },
         dropdownColor: Colors.white,
-        style: const TextStyle(fontSize: 18, color: Colors.black),
+        style: const TextStyle(fontSize: 16, color: Colors.black), // Reduzido
       ),
     );
   }
@@ -298,12 +298,12 @@ class _EntradaFormState extends State<EntradaForm>
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
@@ -313,34 +313,34 @@ class _EntradaFormState extends State<EntradaForm>
         textAlign: centerText ? TextAlign.center : TextAlign.start,
         maxLength: maxLength,
         style: const TextStyle(
-          fontSize: 20,
+          fontSize: 18, // Reduzido de 20
           fontWeight: FontWeight.bold,
           color: Color(0xFF0B0B0B),
-          letterSpacing: 1.2,
+          letterSpacing: 1.0,
         ),
         decoration: InputDecoration(
           labelText: label,
           labelStyle: const TextStyle(
             fontWeight: FontWeight.bold,
             color: Color(0xFF374151),
-            fontSize: 18,
+            fontSize: 16, // Reduzido de 18
           ),
-          prefixIcon: Icon(icon, color: const Color(0xFFFF6A00), size: 32),
+          prefixIcon: Icon(icon, color: const Color(0xFFFF6A00), size: 28),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(18),
             borderSide: BorderSide.none,
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 3),
+            borderRadius: BorderRadius.circular(18),
+            borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 2),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: const BorderSide(color: Color(0xFFFF6A00), width: 3),
+            borderRadius: BorderRadius.circular(18),
+            borderSide: const BorderSide(color: Color(0xFFFF6A00), width: 2),
           ),
           filled: true,
           fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           counterText: '',
         ),
       ),
@@ -349,19 +349,19 @@ class _EntradaFormState extends State<EntradaForm>
 
   Widget _buildSubmitButton() {
     return Container(
-      height: 64,
+      height: 58, // Reduzido de 64
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [Color(0xFFFF6A00), Color(0xFFFF8B3D)],
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFFFF6A00).withOpacity(0.5),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -371,30 +371,30 @@ class _EntradaFormState extends State<EntradaForm>
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(18),
           ),
         ),
         child: isLoading
             ? const SizedBox(
-                width: 32,
-                height: 32,
+                width: 28,
+                height: 28,
                 child: CircularProgressIndicator(
-                  strokeWidth: 4,
+                  strokeWidth: 3,
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
               )
             : const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(FeatherIcons.checkCircle, color: Colors.white, size: 32),
-                  SizedBox(width: 16),
+                  Icon(FeatherIcons.checkCircle, color: Colors.white, size: 28),
+                  SizedBox(width: 12),
                   Text(
                     'REGISTRAR ENTRADA',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 20,
+                      fontSize: 18, // Reduzido de 20
                       fontWeight: FontWeight.bold,
-                      letterSpacing: 1.5,
+                      letterSpacing: 1.2,
                     ),
                   ),
                 ],
@@ -412,55 +412,55 @@ class _EntradaFormState extends State<EntradaForm>
         return Transform.scale(
           scale: value,
           child: Container(
-            margin: const EdgeInsets.only(top: 28),
-            padding: const EdgeInsets.all(24),
+            margin: const EdgeInsets.only(top: 24),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [Color(0xFFF0FDF4), Color(0xFFDCFCE7)],
               ),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(18),
               boxShadow: [
                 BoxShadow(
                   color: const Color(0xFF16A34A).withOpacity(0.3),
-                  blurRadius: 16,
-                  offset: const Offset(0, 6),
+                  blurRadius: 14,
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: const Color(0xFF16A34A),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   child: const Icon(
                     FeatherIcons.checkCircle,
                     color: Colors.white,
-                    size: 36,
+                    size: 32,
                   ),
                 ),
-                const SizedBox(width: 20),
-                Expanded(
+                const SizedBox(width: 16),
+                const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text(
                         'SUCESSO!',
                         style: TextStyle(
-                          fontSize: 22,
+                          fontSize: 20, // Reduzido de 22
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF16A34A),
                         ),
                       ),
-                      SizedBox(height: 6),
+                      SizedBox(height: 4),
                       Text(
                         'Entrada registrada com sucesso',
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 16, // Reduzido de 18
                           color: Color(0xFF15803D),
                           fontWeight: FontWeight.bold,
                         ),
@@ -481,13 +481,13 @@ class _EntradaFormState extends State<EntradaForm>
     return FadeTransition(
       opacity: _fadeAnimation,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(20.0), // Reduzido de 24
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildInfoCard(),
             _buildCustomDropdown(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
             Row(
               children: [
                 Expanded(
@@ -500,7 +500,7 @@ class _EntradaFormState extends State<EntradaForm>
                     textCapitalization: TextCapitalization.characters,
                   ),
                 ),
-                const SizedBox(width: 20),
+                const SizedBox(width: 16),
                 Expanded(
                   child: _buildTextField(
                     controller: modeloController,
@@ -510,19 +510,19 @@ class _EntradaFormState extends State<EntradaForm>
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
             _buildTextField(
               controller: motoristaController,
               label: 'MOTORISTA',
               icon: FeatherIcons.user,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
             _buildTextField(
               controller: idController,
               label: 'IDENTIDADE (ID)',
               icon: FeatherIcons.creditCard,
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 28),
             _buildSubmitButton(),
             if (showSuccess) _buildSuccessCard(),
           ],
