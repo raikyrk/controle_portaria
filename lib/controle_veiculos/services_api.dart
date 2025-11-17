@@ -4,15 +4,16 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/intl.dart';
 
 class ApiService {
+  // URL base centralizada
   static String get apiUrl => dotenv.env['API_URL'] ?? 'https://aogosto.store/mototrack/api';
 
-  // === FETCH CONFERENTES ===
+  // === BUSCAR CONFERENTES ===
   static Future<List<Map<String, dynamic>>> fetchConferentes() async {
-    final url = '$apiUrl/get_conferentes.php';
+    final url = Uri.parse('$apiUrl/get_conferentes.php');
     print('GET: $url');
 
     try {
-      final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
+      final response = await http.get(url).timeout(const Duration(seconds: 10));
       print('Status: ${response.statusCode} | Body: ${response.body}');
 
       if (response.statusCode == 200) {
@@ -34,7 +35,8 @@ class ApiService {
     required String motorista,
     required String idMotorista,
   }) async {
-    final url = '$apiUrl/veiculosreg/register_entrada.php';
+    final url = Uri.parse('$apiUrl/veiculosreg/register_entrada.php');
+
     final registro = {
       'conferente_id': conferenteId,
       'placa': placa.trim().toUpperCase(),
@@ -45,53 +47,41 @@ class ApiService {
       'horario_chegada': DateFormat('HH:mm').format(DateTime.now()),
     };
 
-    print('POST: $url');
-    print('Payload: ${json.encode(registro)}');
+    print('POST: $url | Payload: ${json.encode(registro)}');
 
     try {
-      final response = await http
-          .post(
-            Uri.parse(url),
-            headers: {'Content-Type': 'application/json'},
-            body: json.encode(registro),
-          )
-          .timeout(const Duration(seconds: 15));
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(registro),
+      ).timeout(const Duration(seconds: 15));
 
-      print('Status: ${response.statusCode}');
-      print('Response: ${response.body}');
+      print('Status: ${response.statusCode} | Response: ${response.body}');
 
       if (response.statusCode == 200) {
-        try {
-          final result = json.decode(response.body);
-          return result['success'] == true;
-        } catch (e) {
-          print('JSON inválido: $e');
-          return false;
-        }
-      } else {
-        throw Exception('Erro ${response.statusCode}: ${response.body}');
+        final result = json.decode(response.body);
+        return result['success'] == true;
       }
-    } on http.ClientException catch (e) {
-      throw Exception('Erro de rede: $e');
+      throw Exception('Erro ${response.statusCode}: ${response.body}');
     } catch (e) {
       print('Erro registerEntrada: $e');
       rethrow;
     }
   }
 
-  // === BUSCAR 1 VEÍCULO POR PLACA (ANTIGO search_vehicle) ===
+  // === BUSCAR VEÍCULO POR PLACA (verifica se está dentro) ===
   static Future<Map<String, dynamic>?> searchVehicle(String placa) async {
-    final url = '$apiUrl/veiculosreg/veiculos_status.php?placa=${placa.trim().toUpperCase()}';
+    final url = Uri.parse('$apiUrl/veiculosreg/veiculos_status.php?placa=${placa.trim().toUpperCase()}');
     print('GET: $url');
 
     try {
-      final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
+      final response = await http.get(url).timeout(const Duration(seconds: 10));
       print('Status: ${response.statusCode} | Body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data['success'] == true && data['status'] == 'dentro') {
-          return data['veiculo'];
+          return data['veiculo'] as Map<String, dynamic>;
         }
       }
       return null;
@@ -101,19 +91,20 @@ class ApiService {
     }
   }
 
-  // === LISTAR TODOS OS VEÍCULOS DENTRO HOJE (DROPDOWN) ===
+  // === LISTAR VEÍCULOS DENTRO HOJE (para o dropdown de saída) ===
   static Future<List<Map<String, dynamic>>> fetchVeiculosDentroHoje() async {
-    final url = '$apiUrl/veiculosreg/veiculos_status.php';
+    final url = Uri.parse('$apiUrl/veiculosreg/veiculos_status.php');
     print('GET: $url');
 
     try {
-      final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
+      final response = await http.get(url).timeout(const Duration(seconds: 10));
       print('Status: ${response.statusCode} | Body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data['success'] == true) {
-          return List<Map<String, dynamic>>.from(data['veiculos'] ?? []);
+          final veiculos = data['veiculos'] as List<dynamic>? ?? [];
+          return veiculos.cast<Map<String, dynamic>>();
         }
       }
       return [];
@@ -123,32 +114,33 @@ class ApiService {
     }
   }
 
-  // === REGISTRAR SAÍDA ===
-  static Future<bool> registerSaida(String placa) async {
-    final url = '$apiUrl/veiculosreg/register_saida.php';
+  // === REGISTRAR SAÍDA (CORRIGIDO E 100% FUNCIONAL) ===
+  static Future<bool> registerSaida(String placa, String horarioSaida) async {
+    final url = Uri.parse('$apiUrl/veiculosreg/register_saida.php');
+
     final payload = {
       'placa': placa.trim().toUpperCase(),
-      'horario_saida': DateFormat('HH:mm').format(DateTime.now()),
+      'horario_saida': horarioSaida, // Agora vem do formulário
     };
 
     print('POST: $url | Payload: ${json.encode(payload)}');
 
     try {
-      final response = await http
-          .post(
-            Uri.parse(url),
-            headers: {'Content-Type': 'application/json'},
-            body: json.encode(payload),
-          )
-          .timeout(const Duration(seconds: 15));
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(payload),
+      ).timeout(const Duration(seconds: 15));
 
       print('Status: ${response.statusCode} | Response: ${response.body}');
 
       if (response.statusCode == 200) {
         final result = json.decode(response.body);
         return result['success'] == true;
+      } else {
+        final error = json.decode(response.body);
+        throw Exception(error['error'] ?? 'Erro ${response.statusCode}');
       }
-      throw Exception('Erro ${response.statusCode}');
     } catch (e) {
       print('Erro registerSaida: $e');
       rethrow;

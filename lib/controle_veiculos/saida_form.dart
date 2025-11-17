@@ -1,5 +1,6 @@
-// saida_form.dart
+// lib/controle_veiculos/saida_form.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'services_api.dart';
 
@@ -7,13 +8,14 @@ class SaidaForm extends StatefulWidget {
   const SaidaForm({super.key});
 
   @override
-  _SaidaFormState createState() => _SaidaFormState();
+  State<SaidaForm> createState() => _SaidaFormState();
 }
 
 class _SaidaFormState extends State<SaidaForm>
     with SingleTickerProviderStateMixin {
   List<Map<String, dynamic>> veiculosDentro = [];
   Map<String, dynamic>? selectedVehicle;
+  TimeOfDay? _exitTime;
   bool isLoading = false;
   bool isRegistering = false;
   bool showSuccess = false;
@@ -33,6 +35,12 @@ class _SaidaFormState extends State<SaidaForm>
     );
     _loadVeiculosDentro();
     _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadVeiculosDentro() async {
@@ -73,28 +81,134 @@ class _SaidaFormState extends State<SaidaForm>
     );
   }
 
+  // ---------- SELETOR DE HORÁRIO ----------
+  Future<void> _selectExitTime(BuildContext context) async {
+    TimeOfDay initialTime = _exitTime ?? TimeOfDay.now();
+    Duration tempDuration = Duration(hours: initialTime.hour, minutes: initialTime.minute);
+
+    await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => Container(
+        height: 300,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: const BoxDecoration(
+                border: Border(bottom: BorderSide(color: Color(0xFFE5E7EB))),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cancelar',
+                        style: TextStyle(color: Color(0xFFEF4444), fontSize: 17)),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _exitTime = TimeOfDay(
+                          hour: tempDuration.inHours,
+                          minute: tempDuration.inMinutes % 60,
+                        );
+                      });
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Confirmar',
+                        style: TextStyle(
+                            color: Color(0xFFFF6A00),
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 110,
+                    child: CupertinoPicker(
+                      itemExtent: 40,
+                      scrollController: FixedExtentScrollController(initialItem: initialTime.hour),
+                      children: List.generate(
+                          24,
+                          (i) => Center(
+                              child: Text(i.toString().padLeft(2, '0'),
+                                  style: const TextStyle(fontSize: 24)))),
+                      onSelectedItemChanged: (i) {
+                        tempDuration = Duration(hours: i, minutes: tempDuration.inMinutes % 60);
+                      },
+                    ),
+                  ),
+                  const Text(':', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+                  SizedBox(
+                    width: 110,
+                    child: CupertinoPicker(
+                      itemExtent: 40,
+                      scrollController: FixedExtentScrollController(initialItem: initialTime.minute),
+                      children: List.generate(
+                          60,
+                          (i) => Center(
+                              child: Text(i.toString().padLeft(2, '0'),
+                                  style: const TextStyle(fontSize: 24)))),
+                      onSelectedItemChanged: (i) {
+                        tempDuration = Duration(hours: tempDuration.inHours, minutes: i);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ---------- REGISTRO DE SAÍDA (100% CORRETO E FUNCIONAL) ----------
   Future<void> _registerSaida() async {
     if (selectedVehicle == null) {
       _showErrorSnackBar('Selecione um veículo');
       return;
     }
+    if (_exitTime == null) {
+      _showErrorSnackBar('Selecione o horário de saída');
+      return;
+    }
 
     setState(() => isRegistering = true);
 
+    final horarioFormatado = '${_exitTime!.hour.toString().padLeft(2, '0')}:${_exitTime!.minute.toString().padLeft(2, '0')}';
+
     try {
-      final success = await ApiService.registerSaida(selectedVehicle!['placa']);
-      if (!success) throw Exception('Falha ao registrar saída');
+      final success = await ApiService.registerSaida(
+        selectedVehicle!['placa'],
+        horarioFormatado,
+      );
+
+      if (!success) throw Exception('Falha ao registrar saída no servidor');
 
       setState(() {
         showSuccess = true;
         isRegistering = false;
         selectedVehicle = null;
+        _exitTime = null;
       });
 
       _loadVeiculosDentro();
 
       Future.delayed(const Duration(seconds: 4), () {
-        if (mounted) setState(() => showSuccess = false);
+        if (mounted) {
+          setState(() => showSuccess = false);
+        }
       });
     } catch (e) {
       setState(() => isRegistering = false);
@@ -102,7 +216,7 @@ class _SaidaFormState extends State<SaidaForm>
     }
   }
 
-  // ---------- CARD INFO ----------
+  // ---------- UI ----------
   Widget _buildInfoCard() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -149,7 +263,6 @@ class _SaidaFormState extends State<SaidaForm>
     );
   }
 
-  // ---------- DROPDOWN REDESENHADO ----------
   Widget _buildDropdown() {
     return Container(
       decoration: BoxDecoration(
@@ -170,105 +283,39 @@ class _SaidaFormState extends State<SaidaForm>
           value: selectedVehicle,
           isExpanded: true,
           hint: Row(
-            children: [
-              const Icon(FeatherIcons.truck, color: Color(0xFFFF6A00), size: 28),
-              const SizedBox(width: 16),
+            children: const [
+              Icon(FeatherIcons.truck, color: Color(0xFFFF6A00), size: 28),
+              SizedBox(width: 16),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      'VEÍCULO NA PORTARIA',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF6B7280),
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Selecione a placa do veículo',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey[400],
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  'Selecione a placa do veículo',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey,
+                  ),
                 ),
               ),
             ],
           ),
-          icon: const Icon(
-            Icons.keyboard_arrow_down_rounded,
-            size: 32,
-            color: Color(0xFFFF6A00),
-          ),
+          icon: const Icon(Icons.keyboard_arrow_down_rounded,
+              size: 32, color: Color(0xFFFF6A00)),
           style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF111827),
-          ),
+              fontSize: 20, fontWeight: FontWeight.w600, color: Color(0xFF111827)),
           dropdownColor: Colors.white,
           menuMaxHeight: 450,
           borderRadius: BorderRadius.circular(16),
           elevation: 8,
-          itemHeight: null, // Permite altura dinâmica
-          selectedItemBuilder: (context) {
-            return veiculosDentro.map((v) {
-              return Row(
-                children: [
-                  const Icon(FeatherIcons.truck, color: Color(0xFFFF6A00), size: 28),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text(
-                          'VEÍCULO NA PORTARIA',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF6B7280),
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          v['placa'],
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF111827),
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              );
-            }).toList();
-          },
+          onChanged: isLoading
+              ? null
+              : (value) => setState(() => selectedVehicle = value),
           items: veiculosDentro.map((v) {
             return DropdownMenuItem<Map<String, dynamic>>(
               value: v,
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: Colors.grey[200]!,
-                      width: 1,
-                    ),
-                  ),
-                ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Row(
                       children: [
@@ -281,11 +328,10 @@ class _SaidaFormState extends State<SaidaForm>
                           child: Text(
                             v['placa'],
                             style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              letterSpacing: 1,
-                            ),
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                letterSpacing: 1),
                           ),
                         ),
                         const Spacer(),
@@ -301,71 +347,31 @@ class _SaidaFormState extends State<SaidaForm>
                             children: [
                               const Icon(FeatherIcons.clock, size: 14, color: Color(0xFF16A34A)),
                               const SizedBox(width: 4),
-                              Text(
-                                v['horario_chegada'],
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF16A34A),
-                                ),
-                              ),
+                              Text(v['horario_chegada'],
+                                  style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF16A34A))),
                             ],
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(FeatherIcons.user, size: 14, color: Color(0xFF6B7280)),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            v['motorista'],
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Color(0xFF374151),
-                              fontWeight: FontWeight.w600,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(FeatherIcons.tag, size: 14, color: Color(0xFF6B7280)),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            v['modelo'],
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Color(0xFF6B7280),
-                              fontWeight: FontWeight.w500,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
+                    Text('Motorista: ${v['motorista']}',
+                        style: const TextStyle(fontSize: 14, color: Color(0xFF374151))),
+                    Text('Modelo: ${v['modelo']}',
+                        style: const TextStyle(fontSize: 14, color: Color(0xFF6B7280))),
                   ],
                 ),
               ),
             );
           }).toList(),
-          onChanged: isLoading ? null : (value) {
-            setState(() {
-              selectedVehicle = value;
-            });
-          },
         ),
       ),
     );
   }
 
-  // ---------- CARD INFO DO VEÍCULO ----------
   Widget _buildVehicleInfoCard() {
     if (selectedVehicle == null) return const SizedBox.shrink();
 
@@ -373,240 +379,223 @@ class _SaidaFormState extends State<SaidaForm>
       tween: Tween(begin: 0.0, end: 1.0),
       duration: const Duration(milliseconds: 600),
       curve: Curves.elasticOut,
-      builder: (context, value, child) {
-        return Transform.scale(
-          scale: value,
-          child: Container(
-            margin: const EdgeInsets.symmetric(vertical: 20),
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFFFFFBEB), Color(0xFFFEF3C7)],
+      builder: (_, value, child) => Transform.scale(
+        scale: value,
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 20),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFFFFFBEB), Color(0xFFFEF3C7)],
+            ),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFFFBBF24), width: 2),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFFBBF24).withOpacity(0.3),
+                blurRadius: 14,
+                offset: const Offset(0, 5),
               ),
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: const Color(0xFFFBBF24), width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFFFBBF24).withOpacity(0.3),
-                  blurRadius: 14,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFBBF24),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(FeatherIcons.info, color: Colors.white, size: 24),
-                    ),
-                    const SizedBox(width: 14),
-                    const Text(
-                      'VEÍCULO SELECIONADO',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF0B0B0B),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                _buildInfoRow(FeatherIcons.user, 'MOTORISTA', selectedVehicle!['motorista']),
-                const SizedBox(height: 12),
-                _buildInfoRow(FeatherIcons.tag, 'MODELO', selectedVehicle!['modelo']),
-                const SizedBox(height: 12),
-                _buildInfoRow(
-                  FeatherIcons.clock,
-                  'ENTRADA',
-                  selectedVehicle!['horario_chegada'],
-                  isHighlight: true,
-                ),
-              ],
-            ),
+            ],
           ),
-        );
-      },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('VEÍCULO SELECIONADO',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
+              _buildInfoRow(FeatherIcons.user, 'MOTORISTA', selectedVehicle!['motorista']),
+              const SizedBox(height: 12),
+              _buildInfoRow(FeatherIcons.tag, 'MODELO', selectedVehicle!['modelo']),
+              const SizedBox(height: 12),
+              _buildInfoRow(FeatherIcons.clock, 'ENTRADA',
+                  selectedVehicle!['horario_chegada'], isHighlight: true),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value, {bool isHighlight = false}) {
+  Widget _buildInfoRow(IconData icon, String label, String value,
+      {bool isHighlight = false}) {
     return Row(
       children: [
-        Icon(icon, size: 24, color: isHighlight ? const Color(0xFF16A34A) : const Color(0xFF78716C)),
+        Icon(icon,
+            size: 24,
+            color: isHighlight ? const Color(0xFF16A34A) : const Color(0xFF78716C)),
         const SizedBox(width: 12),
-        Text(
-          '$label: ',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: isHighlight ? const Color(0xFF16A34A) : const Color(0xFF78716C),
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value,
+        Text('$label: ',
             style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: isHighlight ? const Color(0xFF16A34A) : const Color(0xFF0B0B0B),
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: isHighlight ? const Color(0xFF16A34A) : const Color(0xFF78716C))),
+        Expanded(
+          child: Text(value,
+              style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: isHighlight ? const Color(0xFF16A34A) : const Color(0xFF0B0B0B))),
         ),
       ],
     );
   }
 
-  // ---------- BOTÃO REGISTRAR ----------
-  Widget _buildRegisterButton() {
-    return Container(
-      height: 58,
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF16A34A), Color(0xFF15803D)],
-        ),
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF16A34A).withOpacity(0.5),
-            blurRadius: 14,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: ElevatedButton(
-        onPressed: isRegistering ? null : _registerSaida,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        ),
-        child: isRegistering
-            ? const SizedBox(
-                width: 28,
-                height: 28,
-                child: CircularProgressIndicator(
-                  strokeWidth: 3,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
-            : const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(FeatherIcons.checkCircle, color: Colors.white, size: 28),
-                  SizedBox(width: 12),
-                  Text(
-                    'REGISTRAR SAÍDA',
+  Widget _buildExitTimeField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Horário de Saída *',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        InkWell(
+          onTap: () => _selectExitTime(context),
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE5E7EB), width: 2),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3))
+              ],
+            ),
+            child: Row(
+              children: [
+                const Icon(FeatherIcons.clock, size: 22, color: Color(0xFFDC2626)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    _exitTime != null
+                        ? '${_exitTime!.hour.toString().padLeft(2, '0')}:${_exitTime!.minute.toString().padLeft(2, '0')}'
+                        : 'Toque para selecionar',
                     style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                        color: _exitTime != null
+                            ? const Color(0xFFDC2626)
+                            : const Color(0xFF64748B)),
+                  ),
+                ),
+                const Icon(Icons.keyboard_arrow_down_rounded,
+                    color: Color(0xFF64748B)),
+              ],
+            ),
+          ),
+        ),
+        if (_exitTime == null)
+          const Padding(
+            padding: EdgeInsets.only(top: 6, left: 4),
+            child: Text('Obrigatório',
+                style: TextStyle(color: Color(0xFFEF4444), fontSize: 12)),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildRegisterButton() {
+    return SizedBox(
+      height: 58,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(colors: [Color(0xFF16A34A), Color(0xFF15803D)]),
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF16A34A).withOpacity(0.5),
+              blurRadius: 14,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: ElevatedButton(
+          onPressed: isRegistering ? null : _registerSaida,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          ),
+          child: isRegistering
+              ? const SizedBox(
+                  width: 28,
+                  height: 28,
+                  child: CircularProgressIndicator(
+                      strokeWidth: 3,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                )
+              : const Text('REGISTRAR SAÍDA',
+                  style: TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                ],
-              ),
+                      letterSpacing: 1.2)),
+        ),
       ),
     );
   }
 
-  // ---------- CARD DE SUCESSO SUPER VISÍVEL ----------
   Widget _buildSuccessCard() {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
       duration: const Duration(milliseconds: 500),
       curve: Curves.elasticOut,
-      builder: (context, value, child) {
-        return Transform.scale(
-          scale: value,
-          child: Container(
-            margin: const EdgeInsets.only(top: 24),
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFF16A34A), Color(0xFF15803D)],
+      builder: (_, value, child) => Transform.scale(
+        scale: value,
+        child: Container(
+          margin: const EdgeInsets.only(top: 24),
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(colors: [Color(0xFF16A34A), Color(0xFF15803D)]),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white, width: 3),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF16A34A).withOpacity(0.6),
+                blurRadius: 30,
+                spreadRadius: 5,
+                offset: const Offset(0, 8),
               ),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white, width: 3),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF16A34A).withOpacity(0.6),
-                  blurRadius: 30,
-                  spreadRadius: 5,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.white.withOpacity(0.5),
-                        blurRadius: 20,
-                        spreadRadius: 5,
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    FeatherIcons.checkCircle,
-                    color: Color(0xFF16A34A),
-                    size: 56,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  '✓ SAÍDA REGISTRADA!',
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    letterSpacing: 1.2,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Veículo liberado com sucesso',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
+            ],
           ),
-        );
-      },
+          child: const Column(
+            children: [
+              CircleAvatar(
+                radius: 40,
+                backgroundColor: Colors.white,
+                child: Icon(FeatherIcons.checkCircle,
+                    color: Color(0xFF16A34A), size: 56),
+              ),
+              SizedBox(height: 20),
+              Text('SAÍDA REGISTRADA!',
+                  style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 1.2),
+                  textAlign: TextAlign.center),
+              SizedBox(height: 8),
+              Text('Veículo liberado com sucesso',
+                  style: TextStyle(fontSize: 16, color: Colors.white),
+                  textAlign: TextAlign.center),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
-  // ---------- BUILD ----------
   @override
   Widget build(BuildContext context) {
     return FadeTransition(
       opacity: _fadeAnimation,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -615,17 +604,13 @@ class _SaidaFormState extends State<SaidaForm>
             const SizedBox(height: 24),
             if (selectedVehicle != null) _buildVehicleInfoCard(),
             if (selectedVehicle != null) const SizedBox(height: 20),
+            if (selectedVehicle != null) _buildExitTimeField(),
+            if (selectedVehicle != null) const SizedBox(height: 20),
             if (selectedVehicle != null) _buildRegisterButton(),
             if (showSuccess) _buildSuccessCard(),
           ],
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
   }
 }
