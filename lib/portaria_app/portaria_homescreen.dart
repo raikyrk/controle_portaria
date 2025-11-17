@@ -7,7 +7,7 @@ import 'package:controle_portaria/portaria_app/models.dart' as models;
 import 'package:controle_portaria/portaria_app/api_service.dart';
 import 'package:controle_portaria/portaria_app/widgets.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
-import 'package:controle_portaria/main.dart'; // Importa AppState global
+import 'package:controle_portaria/main.dart'; 
 
 Widget buildTextFieldContainer({
   required TextEditingController controller,
@@ -44,7 +44,7 @@ Widget buildTextFieldContainer({
   );
 }
 
-// CLASSE CORRIGIDA: PortariaHomeScreen
+
 class PortariaHomeScreen extends StatefulWidget {
   const PortariaHomeScreen({super.key});
 
@@ -373,7 +373,7 @@ class _PortariaHomeScreenState extends State<PortariaHomeScreen> with TickerProv
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Botão voltar
+
                       Padding(
                         padding: const EdgeInsets.only(bottom: 16.0),
                         child: Container(
@@ -390,7 +390,7 @@ class _PortariaHomeScreenState extends State<PortariaHomeScreen> with TickerProv
                         ),
                       ),
 
-                      // Header
+
                       Container(
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(colors: [Color(0xFFF24514), Color(0xFFD93D12)], begin: Alignment.topLeft, end: Alignment.bottomRight),

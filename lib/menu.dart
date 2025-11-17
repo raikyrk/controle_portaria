@@ -39,7 +39,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
     return Scaffold(
       body: Row(
         children: [
-          // Sidebar Menu
+
           Container(
             width: 280,
             decoration: BoxDecoration(
@@ -54,7 +54,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
             ),
             child: Column(
               children: [
-                // Header do Menu
+
                 Container(
                   padding: const EdgeInsets.all(32),
                   decoration: const BoxDecoration(
@@ -101,7 +101,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                   ),
                 ),
                 const SizedBox(height: 24),
-                // Menu Items
+
                 Expanded(
                   child: ListView(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -163,7 +163,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
               ],
             ),
           ),
-          // Main Content Area
+
           Expanded(
             child: Container(
               decoration: const BoxDecoration(
@@ -177,7 +177,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                 opacity: _fadeAnimation,
                 child: Column(
                   children: [
-                    // Top Bar
+
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
                       decoration: BoxDecoration(
@@ -186,7 +186,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                           BoxShadow(
                             color: Colors.black.withOpacity(0.05),
                             blurRadius: 10,
-                            offset: const Offset(0, 2), // CORRIGIDO: control2 → 2
+                            offset: const Offset(0, 2), 
                           ),
                         ],
                       ),
@@ -204,14 +204,12 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                         ],
                       ),
                     ),
-                    // Content
                     Expanded(
                       child: SingleChildScrollView(
                         padding: const EdgeInsets.all(40),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Welcome Section
                             Container(
                               padding: const EdgeInsets.all(32),
                               decoration: BoxDecoration(

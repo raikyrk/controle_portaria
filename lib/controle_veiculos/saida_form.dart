@@ -81,7 +81,7 @@ class _SaidaFormState extends State<SaidaForm>
     );
   }
 
-  // ---------- SELETOR DE HORÁRIO ----------
+ 
   Future<void> _selectExitTime(BuildContext context) async {
     TimeOfDay initialTime = _exitTime ?? TimeOfDay.now();
     Duration tempDuration = Duration(hours: initialTime.hour, minutes: initialTime.minute);
@@ -173,7 +173,7 @@ class _SaidaFormState extends State<SaidaForm>
     );
   }
 
-  // ---------- REGISTRO DE SAÍDA (100% CORRETO E FUNCIONAL) ----------
+
   Future<void> _registerSaida() async {
     if (selectedVehicle == null) {
       _showErrorSnackBar('Selecione um veículo');
@@ -216,7 +216,7 @@ class _SaidaFormState extends State<SaidaForm>
     }
   }
 
-  // ---------- UI ----------
+ 
   Widget _buildInfoCard() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -264,113 +264,91 @@ class _SaidaFormState extends State<SaidaForm>
   }
 
   Widget _buildDropdown() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFD1D5DB), width: 3),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<Map<String, dynamic>>(
-          value: selectedVehicle,
-          isExpanded: true,
-          hint: Row(
-            children: const [
-              Icon(FeatherIcons.truck, color: Color(0xFFFF6A00), size: 28),
-              SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  'Selecione a placa do veículo',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          icon: const Icon(Icons.keyboard_arrow_down_rounded,
-              size: 32, color: Color(0xFFFF6A00)),
-          style: const TextStyle(
-              fontSize: 20, fontWeight: FontWeight.w600, color: Color(0xFF111827)),
-          dropdownColor: Colors.white,
-          menuMaxHeight: 450,
-          borderRadius: BorderRadius.circular(16),
-          elevation: 8,
-          onChanged: isLoading
-              ? null
-              : (value) => setState(() => selectedVehicle = value),
-          items: veiculosDentro.map((v) {
-            return DropdownMenuItem<Map<String, dynamic>>(
-              value: v,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFF6A00),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            v['placa'],
-                            style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                letterSpacing: 1),
-                          ),
-                        ),
-                        const Spacer(),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF0FDF4),
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: const Color(0xFF16A34A), width: 1),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(FeatherIcons.clock, size: 14, color: Color(0xFF16A34A)),
-                              const SizedBox(width: 4),
-                              Text(v['horario_chegada'],
-                                  style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF16A34A))),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text('Motorista: ${v['motorista']}',
-                        style: const TextStyle(fontSize: 14, color: Color(0xFF374151))),
-                    Text('Modelo: ${v['modelo']}',
-                        style: const TextStyle(fontSize: 14, color: Color(0xFF6B7280))),
-                  ],
-                ),
-              ),
-            );
-          }).toList(),
+  return Container(
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      border: Border.all(color: const Color(0xFFD1D5DB), width: 3),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.08),
+          blurRadius: 15,
+          offset: const Offset(0, 5),
         ),
+      ],
+    ),
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+    child: DropdownButtonHideUnderline(
+      child: DropdownButton<Map<String, dynamic>>(
+        value: selectedVehicle,
+        isExpanded: true,
+        hint: Row(
+          children: const [
+            Icon(FeatherIcons.truck, color: Color(0xFFFF6A00), size: 26),
+            SizedBox(width: 12),
+            Text(
+              'Selecione o veículo',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.grey),
+            ),
+          ],
+        ),
+        icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 32, color: Color(0xFFFF6A00)),
+        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Color(0xFF111827)),
+        dropdownColor: Colors.white,
+        menuMaxHeight: 400,
+        borderRadius: BorderRadius.circular(16),
+        elevation: 8,
+        onChanged: isLoading ? null : (value) => setState(() => selectedVehicle = value),
+        items: veiculosDentro.map((v) {
+          return DropdownMenuItem<Map<String, dynamic>>(
+            value: v,
+            child: SizedBox(
+              height: 48, 
+              child: Row(
+                children: [
+                  
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFF6A00),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      v['placa'],
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  
+                  Expanded(
+                    child: Text(
+                      '${v['motorista']} • ${v['modelo']}',
+                      style: const TextStyle(fontSize: 15),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  
+                  Text(
+                    v['horario_chegada'],
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF16A34A),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }).toList(),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildVehicleInfoCard() {
     if (selectedVehicle == null) return const SizedBox.shrink();
