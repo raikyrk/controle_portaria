@@ -28,7 +28,7 @@ class _NewRecordScreenState extends State<NewRecordScreen> with SingleTickerProv
   @override
   void initState() {
     super.initState();
-    _loadSavedConferente(); // Carregar conferente salvo antes de buscar dados
+    _loadSavedConferente(); 
     _fetchData();
 
     _animationController = AnimationController(
@@ -54,7 +54,7 @@ class _NewRecordScreenState extends State<NewRecordScreen> with SingleTickerProv
     super.dispose();
   }
 
-  // Carregar conferente salvo do SharedPreferences
+
   Future<void> _loadSavedConferente() async {
     final prefs = await SharedPreferences.getInstance();
     final savedConferente = prefs.getString('selectedConferente');
@@ -65,7 +65,7 @@ class _NewRecordScreenState extends State<NewRecordScreen> with SingleTickerProv
     }
   }
 
-  // Salvar conferente selecionado no SharedPreferences
+
   Future<void> _saveConferente(String? conferente) async {
     final prefs = await SharedPreferences.getInstance();
     if (conferente != null) {
@@ -83,10 +83,10 @@ class _NewRecordScreenState extends State<NewRecordScreen> with SingleTickerProv
       setState(() {
         _conferentes = conferentes;
         _motoboys = motoboys;
-        // Verificar se _selectedConferente ainda está na lista de conferentes
+        
         if (_selectedConferente != null && !_conferentes.contains(_selectedConferente)) {
           _selectedConferente = null;
-          _saveConferente(null); // Remover conferente salvo se não estiver na lista
+          _saveConferente(null); 
         }
         _isLoading = false;
       });
@@ -272,7 +272,7 @@ class _NewRecordScreenState extends State<NewRecordScreen> with SingleTickerProv
       _selectedMotoboy = null;
       _selectedPlaca = null;
       _arrivalTime = null;
-      // Não resetar _selectedConferente para manter o valor salvo
+
     });
   }
 
@@ -296,7 +296,7 @@ class _NewRecordScreenState extends State<NewRecordScreen> with SingleTickerProv
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Botão de voltar no canto superior esquerdo
+
                       Align(
                         alignment: Alignment.topLeft,
                         child: Padding(
@@ -463,7 +463,7 @@ class _NewRecordScreenState extends State<NewRecordScreen> with SingleTickerProv
                     items: _conferentes,
                     onChanged: (value) {
                       setState(() => _selectedConferente = value);
-                      _saveConferente(value); // Salvar conferente selecionado
+                      _saveConferente(value); 
                     },
                     validator: (value) => value == null ? 'Selecione um conferente' : null,
                   ),

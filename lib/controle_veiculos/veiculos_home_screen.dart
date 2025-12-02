@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'date_time.dart';
 import 'entrada_form.dart';
-import 'saida_form.dart'; // ADICIONADO
+import 'saida_form.dart'; 
 
 class VeiculosHomeScreen extends StatefulWidget {
   const VeiculosHomeScreen({super.key});
@@ -41,10 +41,10 @@ class _VeiculosHomeScreenState extends State<VeiculosHomeScreen>
             padding: const EdgeInsets.all(20.0),
             child: Column(
               children: [
-                // === BOTÃO VOLTAR + CABEÇALHO ===
+
                 Row(
                   children: [
-                    // BOTÃO VOLTAR
+
                     Container(
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
@@ -70,7 +70,7 @@ class _VeiculosHomeScreenState extends State<VeiculosHomeScreen>
                       ),
                     ),
                     const SizedBox(width: 16),
-                    // TÍTULO CENTRALIZADO
+
                     Expanded(
                       child: Column(
                         children: [
@@ -126,12 +126,12 @@ class _VeiculosHomeScreenState extends State<VeiculosHomeScreen>
 
                 const SizedBox(height: 20),
 
-                // DATA/HORA
+
                 const DateTimeCard(),
 
                 const SizedBox(height: 20),
 
-                // TAB BAR
+
                 Container(
                   decoration: BoxDecoration(
                     color: const Color(0xFFF3F4F6),
@@ -176,7 +176,6 @@ class _VeiculosHomeScreenState extends State<VeiculosHomeScreen>
                   ),
                 ),
 
-                // CONTEÚDO
                 Expanded(
                   child: Container(
                     margin: const EdgeInsets.only(top: 20),
@@ -204,7 +203,7 @@ class _VeiculosHomeScreenState extends State<VeiculosHomeScreen>
                   ),
                 ),
 
-                // RODAPÉ
+
                 Padding(
                   padding: const EdgeInsets.only(top: 20.0),
                   child: Row(
@@ -242,7 +241,7 @@ class _VeiculosHomeScreenState extends State<VeiculosHomeScreen>
   }
 }
 
-// BOTÃO PERSONALIZADO
+
 class _TabButton extends StatelessWidget {
   final bool isActive;
   final IconData icon;

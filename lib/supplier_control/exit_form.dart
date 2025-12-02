@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'api.dart';
 
-// Widget reutilizável para o ícone do caminhão (evita repetir código)
 class _TruckIcon extends StatelessWidget {
   const _TruckIcon({Key? key}) : super(key: key);
 
@@ -116,7 +115,7 @@ class _ExitFormState extends State<ExitForm>
     );
   }
 
-  // ---------- SELETOR DE HORÁRIO ----------
+
   Future<void> _selectExitTime(BuildContext context) async {
     TimeOfDay initialTime = _exitTime ?? TimeOfDay.now();
     Duration tempDuration = Duration(hours: initialTime.hour, minutes: initialTime.minute);
@@ -244,7 +243,6 @@ class _ExitFormState extends State<ExitForm>
     }
   }
 
-  // ---------- UI COMPONENTS ----------
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(24),
@@ -358,7 +356,7 @@ class _ExitFormState extends State<ExitForm>
       duration: const Duration(milliseconds: 700),
       curve: Curves.elasticOut,
       builder: (_, value, child) {
-        final anim = value.clamp(0.0, 1.0); // CORREÇÃO DO ERRO DE OPACITY
+        final anim = value.clamp(0.0, 1.0); 
         return Transform.scale(
           scale: anim,
           child: Opacity(opacity: anim, child: child),
@@ -505,7 +503,7 @@ class _ExitFormState extends State<ExitForm>
       duration: const Duration(milliseconds: 800),
       curve: Curves.elasticOut,
       builder: (_, value, child) {
-        final anim = value.clamp(0.0, 1.0); // CORREÇÃO DO ERRO DE OPACITY
+        final anim = value.clamp(0.0, 1.0); 
         return Transform.scale(scale: anim, child: Opacity(opacity: anim, child: child));
       },
       child: Container(

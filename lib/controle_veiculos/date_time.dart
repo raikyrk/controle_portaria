@@ -18,8 +18,8 @@ class _DateTimeCardState extends State<DateTimeCard> {
   @override
   void initState() {
     super.initState();
-    _updateDateTime(); // Atualiza imediatamente
-    _startTimer();     // Inicia o timer
+    _updateDateTime(); 
+    _startTimer();     
   }
 
   void _updateDateTime() {
@@ -43,7 +43,7 @@ class _DateTimeCardState extends State<DateTimeCard> {
 
   @override
   void dispose() {
-    _timer?.cancel(); // Cancela o timer ao sair
+    _timer?.cancel();
     super.dispose();
   }
 

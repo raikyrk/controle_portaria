@@ -50,7 +50,7 @@ class ControlePortariaApp extends StatelessWidget {
           ),
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFF97316), // CORRIGIDO
+              backgroundColor: const Color(0xFFF97316), 
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -85,7 +85,7 @@ class ControlePortariaApp extends StatelessWidget {
   }
 }
 
-// AppState GLOBAL (COMPLETO)
+
 class AppState extends ChangeNotifier {
   models.Vehicle? _selectedVehicle;
   models.Driver? _selectedDriver;

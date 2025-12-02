@@ -102,12 +102,12 @@ class _EntradaFormState extends State<EntradaForm>
       SnackBar(
         content: Row(
           children: [
-            const Icon(FeatherIcons.alertCircle, color: Colors.white, size: 28), // Reduzido
+            const Icon(FeatherIcons.alertCircle, color: Colors.white, size: 28),  
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 message,
-                style: const TextStyle(fontSize: 16, color: Colors.white), // Reduzido
+                style: const TextStyle(fontSize: 16, color: Colors.white), 
               ),
             ),
           ],
@@ -207,7 +207,7 @@ class _EntradaFormState extends State<EntradaForm>
             child: Text(
               'Preencha todos os campos para registrar a entrada do veículo',
               style: TextStyle(
-                fontSize: 16, // Reduzido de 18
+                fontSize: 16, 
                 color: Color(0xFF1E40AF),
                 fontWeight: FontWeight.bold,
                 height: 1.5,
@@ -239,7 +239,7 @@ class _EntradaFormState extends State<EntradaForm>
           labelStyle: const TextStyle(
             fontWeight: FontWeight.bold,
             color: Color(0xFF374151),
-            fontSize: 16, // Reduzido de 18
+            fontSize: 16, 
           ),
           prefixIcon: const Icon(FeatherIcons.user, color: Color(0xFFFF6A00), size: 28),
           border: OutlineInputBorder(
@@ -263,7 +263,7 @@ class _EntradaFormState extends State<EntradaForm>
             value: conferente['nome'] as String,
             child: Text(
               conferente['nome'] as String,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold), // Reduzido de 18
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold), 
             ),
           );
         }).toList(),
@@ -282,7 +282,7 @@ class _EntradaFormState extends State<EntradaForm>
           await AppPreferences.saveConferenteId(conferente['id']!);
         },
         dropdownColor: Colors.white,
-        style: const TextStyle(fontSize: 16, color: Colors.black), // Reduzido
+        style: const TextStyle(fontSize: 16, color: Colors.black), 
       ),
     );
   }
@@ -313,7 +313,7 @@ class _EntradaFormState extends State<EntradaForm>
         textAlign: centerText ? TextAlign.center : TextAlign.start,
         maxLength: maxLength,
         style: const TextStyle(
-          fontSize: 18, // Reduzido de 20
+          fontSize: 18,
           fontWeight: FontWeight.bold,
           color: Color(0xFF0B0B0B),
           letterSpacing: 1.0,
@@ -323,7 +323,7 @@ class _EntradaFormState extends State<EntradaForm>
           labelStyle: const TextStyle(
             fontWeight: FontWeight.bold,
             color: Color(0xFF374151),
-            fontSize: 16, // Reduzido de 18
+            fontSize: 16,
           ),
           prefixIcon: Icon(icon, color: const Color(0xFFFF6A00), size: 28),
           border: OutlineInputBorder(
@@ -349,7 +349,7 @@ class _EntradaFormState extends State<EntradaForm>
 
   Widget _buildSubmitButton() {
     return Container(
-      height: 58, // Reduzido de 64
+      height: 58, 
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
@@ -392,7 +392,7 @@ class _EntradaFormState extends State<EntradaForm>
                     'REGISTRAR ENTRADA',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 18, // Reduzido de 20
+                      fontSize: 18, 
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.2,
                     ),
@@ -451,7 +451,7 @@ class _EntradaFormState extends State<EntradaForm>
                       Text(
                         'SUCESSO!',
                         style: TextStyle(
-                          fontSize: 20, // Reduzido de 22
+                          fontSize: 20, 
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF16A34A),
                         ),
@@ -460,7 +460,7 @@ class _EntradaFormState extends State<EntradaForm>
                       Text(
                         'Entrada registrada com sucesso',
                         style: TextStyle(
-                          fontSize: 16, // Reduzido de 18
+                          fontSize: 16, 
                           color: Color(0xFF15803D),
                           fontWeight: FontWeight.bold,
                         ),
@@ -481,7 +481,7 @@ class _EntradaFormState extends State<EntradaForm>
     return FadeTransition(
       opacity: _fadeAnimation,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0), // Reduzido de 24
+        padding: const EdgeInsets.all(20.0), 
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

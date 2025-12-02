@@ -23,7 +23,7 @@ class CustomDropdown<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Verificar se selectedItem está na lista de items, caso contrário, usar null
+
     final validSelectedItem = items.contains(selectedItem) ? selectedItem : null;
 
     return DropdownButtonFormField<T>(

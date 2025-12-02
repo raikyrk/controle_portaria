@@ -41,7 +41,7 @@ class _ScreenforHomeState extends State<ScreenforHome>
             padding: const EdgeInsets.all(20.0),
             child: Column(
               children: [
-                // ==================== CABEÇALHO ====================
+
                 Row(
                   children: [
                     Container(
@@ -124,11 +124,10 @@ class _ScreenforHomeState extends State<ScreenforHome>
 
                 const SizedBox(height: 20),
 
-                // ==================== DATA E HORA ====================
                 const DateTimeCard(),
                 const SizedBox(height: 20),
 
-                // ==================== TAB BAR ====================
+
                 Container(
                   decoration: BoxDecoration(
                     color: const Color(0xFFF3F4F6),
@@ -173,7 +172,7 @@ class _ScreenforHomeState extends State<ScreenforHome>
                   ),
                 ),
 
-                // ==================== CONTEÚDO DAS ABAS ====================
+
                 Expanded(
                   child: Container(
                     margin: const EdgeInsets.only(top: 20),
@@ -192,7 +191,7 @@ class _ScreenforHomeState extends State<ScreenforHome>
                       borderRadius: BorderRadius.circular(20),
                       child: TabBarView(
                         controller: _tabController,
-                        // CORRIGIDO: REMOVIDO 'const' DA LISTA
+
                         children: [
                           EntryForm(),
                           ExitForm(),
@@ -202,7 +201,7 @@ class _ScreenforHomeState extends State<ScreenforHome>
                   ),
                 ),
 
-                // ==================== RODAPÉ ====================
+
                 Padding(
                   padding: const EdgeInsets.only(top: 20.0),
                   child: Row(
@@ -240,7 +239,7 @@ class _ScreenforHomeState extends State<ScreenforHome>
   }
 }
 
-// ==================== BOTÃO PERSONALIZADO DA TAB ====================
+
 class _TabButton extends StatelessWidget {
   final bool isActive;
   final IconData icon;

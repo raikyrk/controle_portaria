@@ -10,11 +10,11 @@ Future<void> main() async {
   bool envLoaded = false;
 
   try {
-    // Tenta carregar o arquivo .env
+
     await dotenv.load(fileName: ".env");
     envLoaded = true;
     
-    // Só acessa dotenv.env se foi carregado com sucesso
+
     final url = dotenv.env['BASE_URL'];
     if (url != null && url.isNotEmpty) {
       baseUrl = url;
@@ -27,7 +27,7 @@ Future<void> main() async {
     print('Usando URL fallback: $fallbackUrl');
   }
 
-  // Inicializa o dotenv manualmente se não foi carregado
+
   if (!envLoaded) {
     dotenv.testLoad(fileInput: 'BASE_URL=$baseUrl');
   }

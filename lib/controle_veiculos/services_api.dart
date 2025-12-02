@@ -4,10 +4,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/intl.dart';
 
 class ApiService {
-  // URL base centralizada
+
   static String get apiUrl => dotenv.env['API_URL'] ?? 'https://aogosto.store/mototrack/api';
 
-  // === BUSCAR CONFERENTES ===
+
   static Future<List<Map<String, dynamic>>> fetchConferentes() async {
     final url = Uri.parse('$apiUrl/get_conferentes.php');
     print('GET: $url');
@@ -27,7 +27,7 @@ class ApiService {
     }
   }
 
-  // === REGISTRAR ENTRADA ===
+
   static Future<bool> registerEntrada({
     required String conferenteId,
     required String placa,
@@ -69,7 +69,7 @@ class ApiService {
     }
   }
 
-  // === BUSCAR VEÍCULO POR PLACA (verifica se está dentro) ===
+
   static Future<Map<String, dynamic>?> searchVehicle(String placa) async {
     final url = Uri.parse('$apiUrl/veiculosreg/veiculos_status.php?placa=${placa.trim().toUpperCase()}');
     print('GET: $url');
@@ -91,7 +91,7 @@ class ApiService {
     }
   }
 
-  // === LISTAR VEÍCULOS DENTRO HOJE (para o dropdown de saída) ===
+
   static Future<List<Map<String, dynamic>>> fetchVeiculosDentroHoje() async {
     final url = Uri.parse('$apiUrl/veiculosreg/veiculos_status.php');
     print('GET: $url');
@@ -114,13 +114,13 @@ class ApiService {
     }
   }
 
-  // === REGISTRAR SAÍDA (CORRIGIDO E 100% FUNCIONAL) ===
+
   static Future<bool> registerSaida(String placa, String horarioSaida) async {
     final url = Uri.parse('$apiUrl/veiculosreg/register_saida.php');
 
     final payload = {
       'placa': placa.trim().toUpperCase(),
-      'horario_saida': horarioSaida, // Agora vem do formulário
+      'horario_saida': horarioSaida,
     };
 
     print('POST: $url | Payload: ${json.encode(payload)}');

@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 class Api {
   static String get apiUrl => dotenv.env['API_URL'] ?? 'https://aogosto.store/mototrack/api';
 
-  // === FETCH GATEKEEPERS ===
   static Future<List<Map<String, dynamic>>> fetchConferentes() async {
     final url = '$apiUrl/get_conferentes.php';
     print('GET: $url');
@@ -26,7 +25,6 @@ class Api {
     }
   }
 
-  // === REGISTER SUPPLIER ENTRY ===
   static Future<bool> registerSupplierEntry({
     required String conferenteId,
     required String placa,
@@ -79,7 +77,7 @@ class Api {
     }
   }
 
-  // === LIST SUPPLIERS INSIDE TODAY (DROPDOWN) ===
+
   static Future<List<Map<String, dynamic>>> fetchSuppliersInsideToday() async {
     final url = '$apiUrl/fornecedores/fornecedores_status.php';
     print('GET: $url');
@@ -101,7 +99,7 @@ class Api {
     }
   }
 
-  // === REGISTER SUPPLIER EXIT ===
+
   static Future<bool> registerSupplierExit(String placa) async {
     final url = '$apiUrl/fornecedores/register_saida.php';
     final payload = {
